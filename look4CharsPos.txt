@@ -1,0 +1,55 @@
+; Search for repeated chars in cad & output positions
+; fmartine 08/10/2020
+
+	JMP start
+char: DB 0x6C
+hello: DB "Hello" ; Variable
+       DB 0	; String terminator
+addrs: DB 0
+	DB 0
+	DB 0
+
+start:
+	MOV C, hello    ; Point to var 
+	MOV D, addrs	; loc mem to store addressess
+	
+	CALL print
+; ********* CYCLE TO GET TRUE POSITIONS ********
+output:
+	MOV D, 232	; point to output
+	MOV [D], B
+	INC D
+	MOV [D], 0x20
+	INC D
+	MOV C, hello	; point again to beginning of cad
+	MOV B, addrs	; loc mem to store addressess
+kout:	MOV A, [B]	; copy char address to reg
+	CMP A, 0	; IF NO MORE ADDRESSESS
+	JZ end	
+	SUB A, C	; get true char position
+	ADD A, 0x30	; CONVERT TO ASCII
+	MOV [D], A	; display position
+	INC D
+	INC B		; next address
+	JMP kout	; keep with true positions
+	
+end:       HLT             ; Stop execution
+
+; ******* CYCLE TO FIND CHARS ******
+print:			; print(C:*from, D:*to)
+	MOV B, [char]
+.loop:
+	MOV A, [C]	; Get char from var
+	CMP B,A
+	JNZ incP1
+	MOV [D], C	; Save char address
+	INC D	
+
+incP1:
+	INC C
+	MOV A, [C]		
+	CMP A,0
+	JZ bOut
+	JMP .loop
+
+bOut:	RET
